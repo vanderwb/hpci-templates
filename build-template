@@ -1,0 +1,220 @@
+#!/bin/bash
+#
+#HPCI -n 
+#HPCI -v 
+#HPCI -x module load @CMOD
+#HPCI -x module load @MMOD
+#HPCI -x module load ncarcompilers
+#HPCI -a 
+
+# ===== HPCINSTALL BUILD SCRIPT
+#
+#	Program:    
+#	Maintainer: Brian Vanderwende
+#	Revised:    
+
+# ===== BUILD CONFIGURATION
+
+# Module configuration
+#   SWTYPE determines module location: idep, compiler, dcomp, dmpi, pythonpkgs
+#   SWLIBS provides library calls necessary to compile against software
+SWTYPE=
+SWLIBS=
+
+# Define build itinerary
+SWPKGS[0]=${HPCI_SW_NAME}-$HPCI_SW_VERSION
+
+# Define how each component will be built
+#   Options: autotools, make, cmake, perl, setuptools, custom
+SWBTOOL[0]=
+
+echo -e "\n>>> BEGINNING BUILD [${HPCI_SW_NAME}-${HPCI_SW_VERSION}]\n"
+
+# Set compiler specific settings
+case $LMOD_FAMILY_COMPILER in
+	gnu)
+		echo "Building with GNU compilers ..."
+		;;
+	intel)
+		echo "Building with Intel compilers ..."
+
+		export CC=icc
+		export CXX=icpc
+		export FC=ifort
+		;;
+	pgi)
+		echo "Building with PGI compilers ..."
+
+		export CC=pgcc
+		export CXX=pgc++
+		export FC=pgif90
+		;;
+	*)
+		;;
+esac
+
+# If MPI program, use those wrappers
+if [[ $SWTYPE == "dmpi" ]]; then
+	echo "Using MPI wrappers ..."
+
+	export CC=mpicc
+	export CXX=mpicxx
+	export FC=mpif90
+fi
+
+# ===== BUILD EACH SOFTWARE PACKAGE AS SCHEDULED
+
+function run_cmd {
+	CMD=$1
+
+	if [[ -z "$2" ]]; then
+		CMDNAME=${CMD#./}
+	else
+		CMDNAME=$2
+	fi
+
+	echo -e "\n>>> RUNNING COMMAND [${CMDNAME}]\n"
+
+	$CMD
+
+	if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
+		echo -e "\n*** ERROR: $CMDNAME exited with code ${PIPESTATUS[0]}! Exiting ..."
+		exit 1
+	fi
+}
+
+# Make build directory to store source files since HPCI won't do it until later
+mkdir -p ${HPCI_SW_DIR}/BUILD_DIR
+
+for P in ${!SWPKGS[@]}; do
+	PKG=${SWPKGS[$P]}
+	echo -e "\n$((P + 1))) BUILDING PACKAGE [${PKG}] ...\n"
+	
+	# Unpackage source files
+	echo "Preparing source files ..."
+	rm -rf source-$PKG
+	PKGSRC=$(ls -d -1 $PKG* | head -1)
+
+	if [[ -e $PKGSRC ]]; then
+		case $PKGSRC in
+			*.tar* | *.tgz)
+				tar -xvf $PKGSRC > /dev/null
+				mv $PKG source-$PKG
+				;;
+			*.zip)
+				unzip -d source $PKGSRC > /dev/null
+				mv $PKG source-$PKG
+				;;
+			*)
+				cp -r $PKGSRC source-$PKG
+				;;
+		esac
+	else
+		echo -e "\n*** ERROR: source for $PKG does not exist! Exiting ..."
+		exit 1
+	fi
+
+	cd source-$PKG
+
+# ===== BUILD AND INSTALL THE SOFTWARE
+
+	# Define settings and prepare source files for package
+	case $PKG in
+		${HPCI_SW_NAME}-${HPCI_SW_VERSION})
+			export CPPFLAGS=
+			BUILDOPTS=
+			;;
+		*)
+			;;
+	esac
+
+	# Build the package using specified build mechanism
+	BTOOL=${SWBTOOL[$P]}
+	echo "Using ${BTOOL} ..."
+
+	case $BTOOL in
+		autotools)
+			mkdir -p m4
+			
+			if [[ -f autogen.sh ]]; then
+				run_cmd ./autogen.sh
+			else
+				run_cmd "libtoolize -f --copy"
+				run_cmd "aclocal -I m4 --install --force"
+				run_cmd "autoheader -f"
+				run_cmd "autoconf -f"
+				run_cmd "automake -af --copy"
+			fi
+			;&
+		make)
+			run_cmd "./configure --prefix=$HPCI_SW_DIR $BUILDOPTS"
+			run_cmd "make"
+			run_cmd "make install" make-install
+			;;
+		cmake)
+			mkdir build; cd build
+			BUILDOPTS="-DCMAKE_INSTALL_HPCI_SW_DIR=$HPCI_SW_DIR $BUILDOPTS"
+			
+			run_cmd "cmake $BUILDOPTS .."
+			run_cmd "cmake --build . --target install" cmake-install
+			;;
+		perl)
+			run_cmd "perl Makefile.PL HPCI_SW_DIR=$HPCI_SW_DIR $BUILDOPTS" perl-config
+			run_cmd make perl-make
+			run_cmd "make install" perl-install
+			;;
+		setuptools)
+			mkdir -p ${HPCI_SW_DIR}/lib/python2.7/site-packages
+			export PYTHONPATH=${HPCI_SW_DIR}/lib/python2.7/site-packages:$PYTHONPATH
+
+			run_cmd "python setup.py build $BUILDOPTS" python-build
+			run_cmd "python setup.py install --prefix=$HPCI_SW_DIR" python-install
+			;;
+		custom)
+			;;
+	esac
+
+	cd ..
+done
+
+echo -e "\n<<< BUILD COMPLETE!\n"
+
+# ===== INSTALL THE MODULE
+
+if [[ -f module.lua ]]; then
+	if [[ $SWTYPE == d* ]]; then
+		MODPATH=$HPCI_MOD_DIR_CDEP
+	else
+		MODPATH=${HPCI_MOD_DIR}/$SWTYPE
+	fi
+
+	MODPATH=${MODPATH}/$HPCI_SW_NAME
+	MODFILE=${MODPATH}/${HPCI_SW_VERSION}.lua
+	
+	echo "Configuring and installing modulefile ..."
+	echo "Path: ${MODFILE}"
+
+	# Construct module, listing modules used in the build process
+	# Need to ensure group write access so git repository is consistent
+	umask 0002
+	mkdir -p $MODPATH
+	sed -n '1,/Modules used:/p' module.lua > ${MODFILE}
+	module list 2>&1 | awk -F '[0-9, ][0-9])' '{for(i=2;i<=NF;i++) {print "  "$i}}' >> ${MODFILE}
+	sed -n '1,/Modules used:/!p' module.lua >> ${MODFILE}
+
+	# Perform substitutions
+	COMPINFO="${LMOD_FAMILY_COMPILER}/${LMOD_COMPILER_VERSION}"
+	FLAGNAME=${HPCI_SW_NAME//[^A-Za-z0-9]/}
+	SEDCMD=$"s|@NAME|${HPCI_SW_NAME}|g  ; s|@VERS|${HPCI_SW_VERSION}|g 
+			 s|@BASE|${HPCI_SW_DIR}|g   ; s|@DATE|`date`|g
+			 s|@COMP|${COMPINFO}|g      ; s|@LIBS|${SWLIBS}|g
+			 s|@WRAP|${FLAGNAME^^}|g"
+	sed -i "$SEDCMD" ${MODFILE}
+else
+	echo "No modulefile to install"
+fi
+
+# ===== CLEAN UP
+
+echo -e "Cleaning source directories ...\n"
+rm -rf source-*
