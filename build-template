@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# ===== HPCINSTALL BUILD SCRIPT
+#
 #HPCI -n 
 #HPCI -v 
 #HPCI -x module load @CMOD
@@ -7,9 +9,6 @@
 #HPCI -x module load ncarcompilers
 #HPCI -a 
 
-# ===== HPCINSTALL BUILD SCRIPT
-#
-#	Program:    
 #	Maintainer: Brian Vanderwende
 #	Revised:    
 
