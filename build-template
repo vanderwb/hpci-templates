@@ -178,10 +178,6 @@ done
 
 echo -e "\n<<< BUILD COMPLETE!\n"
 
-# Clean up source files
-echo "Cleaning source directories ..."
-rm -rf source-*
-
 # ===== INSTALL THE MODULE
 
 # Set path for the module file
@@ -255,4 +251,8 @@ SEDCMD=$"s|@NAME|${HPCI_SW_NAME}|g  ; s|@VERS|${HPCI_SW_VERSION}|g
 		 s|@WRAP|${FLAGNAME^^}|g"
 sed -i "$SEDCMD" ${MODFILE}
 
-# ===== ALL DONE
+# ===== CLEAN FILES
+
+echo "Cleaning source files ..."
+rm -rf source-*
+rm module.lua
