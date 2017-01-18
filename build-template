@@ -10,13 +10,13 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    10:55, 18 Jan 2017
+#	Revised:    11:18, 18 Jan 2017
 
 # ===== BUILD CONFIGURATION
 
 # Module configuration
 #   SWTYPE determines module location: idep, compiler, dcomp, dmpi, pythonpkgs
-#   SWDESC provides "Help" description of software (no newlines are needed)
+#   SWDESC provides "Help" description of software (use \n\n for paragraphs)
 #   SWSITE provides "Help" website for software
 #   SWLIBS provides library calls necessary to compile against software
 SWTYPE=
@@ -216,7 +216,7 @@ whatis("${HPCI_SW_NAME} v${HPCI_SW_VERSION}")
 
 -- The message printed by the module help command
 help([[
-$(echo ${SWDESC} | fmt)
+$(echo -e ${SWDESC} | fmt)
 
 Software website - ${SWSITE}
 
