@@ -16,8 +16,12 @@
 
 # Module configuration
 #   SWTYPE determines module location: idep, compiler, dcomp, dmpi, pythonpkgs
+#   SWDESC provides "Help" description of software (no newlines are needed)
+#   SWSITE provides "Help" website for software
 #   SWLIBS provides library calls necessary to compile against software
 SWTYPE=
+SWDESC=
+SWSITE=
 SWLIBS=
 
 # Define build itinerary
@@ -189,70 +193,61 @@ fi
 
 MODPATH=${MODPATH}/$HPCI_SW_NAME
 MODFILE=${MODPATH}/${HPCI_SW_VERSION}.lua
+WRAPNAME=${HPCI_SW_NAME//[^A-Za-z0-9]/}
 
 echo "Configuring and installing modulefile ..."
 echo "Path: ${MODFILE}"
-
-# Write the module file template for this software
-cat > module.lua << EOF
-require("posix")
-
--- The message printed by the module whatis command
-whatis("@NAME v@VERS")
-
--- The message printed by the module help command
-help([[
-This is really cool software that does cool things!
-PLACEHOLDER DESCRIPTION -- PLEASE CHANGE!
-
-Software website - 
-
-Built on @DATE
-Modules used:
-]])
-
--- Set prerequisites and conflicts
-
-
--- Set paths for software binaries, libraries, headers, and manuals
-local basepath = "@BASE"
-local binpath  = pathJoin(basepath,"/bin")                   -- binaries
-local libpath  = pathJoin(basepath,"/lib")                   -- libraries
-local incpath  = pathJoin(basepath,"/include")               -- include files
-local manpath  = pathJoin(basepath,"/share/man")             -- man pages
-local libs     = "@LIBS"
-
--- Update the binary and manual paths in user environment
-prepend_path("PATH",binpath)
-prepend_path("MANPATH",manpath)
-
--- Configure NCAR compiler wrappers to use headers and libraries
-setenv("NCAR_INC_@WRAP", incpath)
-setenv("NCAR_LDFLAGS_@WRAP", libpath)
-setenv("NCAR_LIBS_@WRAP", libs)
-EOF
 
 # Configure the module file for this particular build
 # Need to ensure group write access so git repository is consistent
 umask 0002
 mkdir -p $MODPATH
 
-# Add modules used in the build process
-sed -n '1,/Modules used:/p' module.lua > ${MODFILE}
-module list 2>&1 | awk -F '[0-9, ][0-9])' '{for(i=2;i<=NF;i++) {print "  "$i}}' >> ${MODFILE}
-sed -n '1,/Modules used:/!p' module.lua >> ${MODFILE}
+# Write the module file template for this software
+cat > $MODFILE << EOF
+require("posix")
 
-# Perform substitutions
-COMPINFO="${LMOD_FAMILY_COMPILER}/${LMOD_COMPILER_VERSION}"
-FLAGNAME=${HPCI_SW_NAME//[^A-Za-z0-9]/}
-SEDCMD=$"s|@NAME|${HPCI_SW_NAME}|g  ; s|@VERS|${HPCI_SW_VERSION}|g 
-		 s|@BASE|${HPCI_SW_DIR}|g   ; s|@DATE|`date`|g
-		 s|@COMP|${COMPINFO}|g      ; s|@LIBS|${SWLIBS}|g
-		 s|@WRAP|${FLAGNAME^^}|g"
-sed -i "$SEDCMD" ${MODFILE}
+-- The message printed by the module whatis command
+whatis("${HPCI_SW_NAME} v${HPCI_SW_VERSION}")
+
+-- The message printed by the module help command
+help([[
+$(echo ${SWDESC} | fmt)
+
+Software website - ${SWSITE}
+
+Built on $(date)
+Modules used:
+EOF
+
+# Write out list of build dependencies
+module list 2>&1 | awk -F '[0-9, ][0-9])' '{for(i=2;i<=NF;i++) {print "  "$i}}' >> $MODFILE
+
+cat >> $MODFILE << EOF
+]])
+
+-- Set prerequisites and conflicts
+
+
+-- Set paths for software binaries, libraries, headers, and manuals
+local basepath = "${HPCI_SW_DIR}"
+local binpath  = pathJoin(basepath, "/bin")             -- binaries
+local libpath  = pathJoin(basepath, "/lib")             -- libraries
+local incpath  = pathJoin(basepath, "/include")         -- include files
+local manpath  = pathJoin(basepath, "/share/man")       -- man pages
+local libs     = "${SWLIBS}"
+
+-- Update the binary and manual paths in user environment
+prepend_path("PATH", binpath)
+prepend_path("MANPATH", manpath)
+
+-- Configure NCAR compiler wrappers to use headers and libraries
+setenv("NCAR_INC_${WRAPNAME}", incpath)
+setenv("NCAR_LDFLAGS_${WRAPNAME}", libpath)
+setenv("NCAR_LIBS_${WRAPNAME}", libs)
+EOF
 
 # ===== CLEAN FILES
 
 echo "Cleaning source files ..."
 rm -rf source-*
-rm module.lua
