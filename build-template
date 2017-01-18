@@ -10,7 +10,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    
+#	Revised:    10:55, 18 Jan 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -185,10 +185,14 @@ echo -e "\n<<< BUILD COMPLETE!\n"
 # ===== INSTALL THE MODULE
 
 # Set path for the module file
-if [[ $SWTYPE == d* ]]; then
-	MODPATH=$HPCI_MOD_DIR_CDEP
+if [[ $HOSTNAME == [jy]* ]] && [[ $USER != csgteam ]]; then
+	MODPATH=$HPCI_MOD_DIR
 else
-	MODPATH=${HPCI_MOD_DIR}/$SWTYPE
+	if [[ $SWTYPE == d* ]]; then
+		MODPATH=$HPCI_MOD_DIR_CDEP
+	else
+		MODPATH=${HPCI_MOD_DIR}/$SWTYPE
+	fi
 fi
 
 MODPATH=${MODPATH}/$HPCI_SW_NAME
