@@ -10,7 +10,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    11:18, 18 Jan 2017
+#	Revised:    15:38, 23 Jan 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -246,9 +246,9 @@ prepend_path("PATH", binpath)
 prepend_path("MANPATH", manpath)
 
 -- Configure NCAR compiler wrappers to use headers and libraries
-setenv("NCAR_INC_${WRAPNAME}", incpath)
-setenv("NCAR_LDFLAGS_${WRAPNAME}", libpath)
-setenv("NCAR_LIBS_${WRAPNAME}", libs)
+setenv("NCAR_INC_${WRAPNAME^^}", incpath)
+setenv("NCAR_LDFLAGS_${WRAPNAME^^}", libpath)
+setenv("NCAR_LIBS_${WRAPNAME^^}", libs)
 EOF
 
 # ===== CLEAN FILES
