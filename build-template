@@ -10,7 +10,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    15:59, 23 Jan 2017
+#	Revised:    13:38, 24 Jan 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -211,7 +211,7 @@ else
 	fi
 fi
 
-MODPATH=${MODPATH}/$SWNAME
+MODPATH=${MODPATH}/$HPCI_SW_NAME
 MODFILE=${MODPATH}/${HPCI_SW_VERSION}.lua
 WRAPNAME=${SWNAME//[^A-Za-z0-9]/}
 
