@@ -10,7 +10,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    13:38, 24 Jan 2017
+#	Revised:    16:17, 24 Jan 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -181,13 +181,18 @@ for P in ${!SWPKGS[@]}; do
 		wheel)
 			SWTYPE=
 			PYMAJOR=$(python --version |& cut -c 8-10)
-			
-			# First, create the wheel, then install it using pip
+		
+			# Build in a virtual environment
+			virtualenv hpci_env
+			source hpci_env/bin/activate
+
+			# Create the wheel, then install it using pip
 			run_cmd "python setup.py bdist_wheel --dist-dir=${HPCI_SW_DIR}/wheel $BUILDOPTS" python-wheel
 			cd $HPCI_SW_DIR
 			WHEEL=$(ls wheel/ | cut -d '-' -f 1)
 			run_cmd "pip --no-cache-dir install --prefix . --no-index -f wheel ${WHEEL}" python-install
 			cd - > /dev/null
+			deactivate
 			;;
 		custom)
 			;;
