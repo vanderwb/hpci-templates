@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage () {
-	echo "Usage: ./run_build.sh SCRIPT [-c COMPILERS] [-m MPIS]"
+	echo "Usage: ./run_build.sh SCRIPT [-c COMPILERS] [-m MPIS] [-p PYTHONS]"
 	exit 0
 }
 
@@ -28,6 +28,10 @@ while [[ $# -gt 0 ]]; do
 			TARGET=mpi
 			MLIST=()
 			;;
+		-p|--python)
+			TARGET=python
+			PLIST=()
+			;;
 		-s|--system)
 			HPCIOPT=-c
 			;;
@@ -39,11 +43,14 @@ while [[ $# -gt 0 ]]; do
 				mpi)
 					MLIST+=($1)
 					;;
+				python)
+					PLIST+=($1)
+					;;
 				*)
 					if [[ -z $SCRIPT ]]; then
 						TEMPLATE=$1
 					else
-						echo "ERROR: argument not preceeded by a target (-c/-m)"
+						echo "ERROR: argument not preceeded by a target (-c/-m/-p)"
 						exit 1
 					fi
 					;;
@@ -69,9 +76,25 @@ for COMP in "${CLIST[@]}"; do
 		for MPI in "${MLIST[@]}"; do
 			sed -i "s|@MMOD|${MPI}|g" $SCRIPT
 			
-			build
+			if [[ ! -z $PLIST ]]; then
+				for PYTHON in "${PLIST[@]}"; do
+					sed -i "s|@PMOD|${PYTHON}|g" $SCRIPT
+
+					build
+				done
+			else
+				build
+			fi
 		done
 	else
-		build
+		if [[ ! -z $PLIST ]]; then
+			for PYTHON in "${PLIST[@]}"; do
+				sed -i "s|@PMOD|${PYTHON}|g" $SCRIPT
+
+				build
+			done
+		else
+			build
+		fi
 	fi
 done
