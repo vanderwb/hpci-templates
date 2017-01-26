@@ -10,7 +10,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    14:00, 25 Jan 2017
+#	Revised:    21:16, 25 Jan 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -184,7 +184,7 @@ for P in ${!SWPKGS[@]}; do
 			PYMAJOR=$(python --version |& cut -c 8-10)
 		
 			# Build in a virtual environment
-			virtualenv hpci_env
+			virtualenv --system-site-packages hpci_env
 			source hpci_env/bin/activate
 
 			# Create the wheel, then install it using pip
