@@ -10,7 +10,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    21:16, 25 Jan 2017
+#	Revised:    12:35, 26 Jan 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -238,7 +238,7 @@ whatis("${SWNAME} v${HPCI_SW_VERSION}")
 
 -- The message printed by the module help command
 help([[
-$(echo -e ${SWDESC} | fmt)
+$(echo -e ${SWDESC} | fmt -s)
 
 Software website - ${SWSITE}
 
