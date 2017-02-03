@@ -3,14 +3,15 @@
 # ===== HPCINSTALL BUILD SCRIPT
 #
 #HPCI -n 
-#HPCI -v 
+#HPCI -v
+#HPCI -x module load ncarenv
 #HPCI -x module load @CMOD
-#HPCI -x module load @MMOD
 #HPCI -x module load ncarcompilers
+#HPCI -x module load @MMOD
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    12:35, 26 Jan 2017
+#	Revised:    22:48, 02 Feb 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -62,12 +63,23 @@ case $LMOD_FAMILY_COMPILER in
 esac
 
 # If MPI program, use those wrappers
-if [[ $SWTYPE == "dmpi" ]]; then
+if [[ $SWTYPE == dmpi ]]; then
 	echo "Using MPI wrappers ..."
 
 	export CC=mpicc
 	export CXX=mpicxx
 	export FC=mpif90
+fi
+
+# If python package, get version and adjust SWTYPE
+if [[ $SWTYPE == pythonpkgs ]]; then
+	PYMAJOR=$(python --version |& cut -c 8-10)
+
+	if [[ $HOSTNAME == [cl]* ]]; then
+		SWTYPE=
+	fi
+
+	echo "Building for Python ${PYMAJOR} ..."
 fi
 
 # ===== BUILD EACH SOFTWARE PACKAGE AS SCHEDULED
@@ -84,9 +96,10 @@ function run_cmd {
 	echo -e "\n>>> RUNNING COMMAND [${CMDNAME}]\n"
 
 	$CMD
+	CMDCODE=${PIPESTATUS[0]}
 
-	if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
-		echo -e "\n*** ERROR: $CMDNAME exited with code ${PIPESTATUS[0]}! Exiting ..."
+	if [[ $CMDCODE != 0 ]]; then
+		echo -e "\n*** ERROR: $CMDNAME exited with code ${CMDCODE}! Exiting ..."
 		exit 1
 	fi
 }
@@ -172,7 +185,6 @@ for P in ${!SWPKGS[@]}; do
 			run_cmd "make install" perl-install
 			;;
 		setuptools)
-			PYMAJOR=$(python --version |& cut -c 8-10)
 			mkdir -p ${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages
 			export PYTHONPATH=${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages:$PYTHONPATH
 
@@ -180,9 +192,6 @@ for P in ${!SWPKGS[@]}; do
 			run_cmd "python setup.py install --prefix=$HPCI_SW_DIR" python-install
 			;;
 		wheel)
-			SWTYPE=
-			PYMAJOR=$(python --version |& cut -c 8-10)
-		
 			# Build in a virtual environment
 			virtualenv --system-site-packages hpci_env
 			source hpci_env/bin/activate
