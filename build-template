@@ -11,7 +11,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    22:48, 02 Feb 2017
+#	Revised:    16:12, 06 Feb 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -280,10 +280,20 @@ prepend_path("PYTHONPATH", pypath)
 prepend_path("MANPATH", manpath)
 
 -- Configure NCAR compiler wrappers to use headers and libraries
+EOF
+
+if [[ $HOSTNAME == [jy]* ]]; then
+cat >> $MODFILE << EOF
+prepend_path("INC_NCAR", "-I" .. incpath, " ")
+prepend_path("LIB_NCAR", "-L" .. libpath .. " " .. libs .. " -Wl,-rpath," .. libpath, " ")
+EOF
+else
+cat >> $MODFILE << EOF
 setenv("NCAR_INC_${WRAPNAME^^}", incpath)
 setenv("NCAR_LDFLAGS_${WRAPNAME^^}", libpath)
 setenv("NCAR_LIBS_${WRAPNAME^^}", libs)
 EOF
+fi
 
 # ===== CLEAN FILES
 
