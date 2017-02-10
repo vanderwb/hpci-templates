@@ -11,7 +11,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    16:12, 06 Feb 2017
+#	Revised:    10:55, 10 Feb 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -174,13 +174,13 @@ for P in ${!SWPKGS[@]}; do
 			;;
 		cmake)
 			mkdir build; cd build
-			BUILDOPTS="-DCMAKE_INSTALL_HPCI_SW_DIR=$HPCI_SW_DIR $BUILDOPTS"
+			BUILDOPTS="-DCMAKE_INSTALL_PREFIX=$HPCI_SW_DIR $BUILDOPTS"
 			
 			run_cmd "cmake $BUILDOPTS .."
 			run_cmd "cmake --build . --target install" cmake-install
 			;;
 		perl)
-			run_cmd "perl Makefile.PL HPCI_SW_DIR=$HPCI_SW_DIR $BUILDOPTS" perl-config
+			run_cmd "perl Makefile.PL PREFIX=$HPCI_SW_DIR $BUILDOPTS" perl-config
 			run_cmd make perl-make
 			run_cmd "make install" perl-install
 			;;
