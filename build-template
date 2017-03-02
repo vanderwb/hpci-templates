@@ -11,7 +11,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    10:55, 10 Feb 2017
+#	Revised:    11:36, 02 Mar 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -85,17 +85,15 @@ fi
 # ===== BUILD EACH SOFTWARE PACKAGE AS SCHEDULED
 
 function run_cmd {
-	CMD=$1
+	CMD=$1 CMDNAME=$1
 
-	if [[ -z "$2" ]]; then
-		CMDNAME=${CMD#./}
-	else
+	if [[ ! -z "$2" ]]; then
 		CMDNAME=$2
 	fi
 
 	echo -e "\n>>> RUNNING COMMAND [${CMDNAME}]\n"
 
-	$CMD
+	eval $CMD
 	CMDCODE=${PIPESTATUS[0]}
 
 	if [[ $CMDCODE != 0 ]]; then
