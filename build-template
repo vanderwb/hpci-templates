@@ -11,12 +11,12 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    11:36, 02 Mar 2017
+#	Revised:    14:43, 13 Mar 2017
 
 # ===== BUILD CONFIGURATION
 
 # Module configuration
-#   SWTYPE determines module location: idep, compiler, dcomp, dmpi, pythonpkgs
+#   SWTYPE determines module location: idep, compiler, dcomp, dmpi, pythonpkgs, none
 #   SWDESC provides "Help" description of software (use \n\n for paragraphs)
 #   SWSITE provides "Help" website for software
 #   SWLIBS provides library calls necessary to compile against software
@@ -211,7 +211,16 @@ done
 
 echo -e "\n<<< BUILD COMPLETE!\n"
 
+# ===== CLEAN FILES
+
+echo "Cleaning source files ..."
+rm -rf source-*
+
 # ===== INSTALL THE MODULE
+
+if [[ $SWTYPE == none ]]; then
+	exit 0
+fi
 
 # Set path for the module file
 if [[ $HOSTNAME == [jy]* ]] && [[ $USER != csgteam ]]; then
@@ -292,8 +301,3 @@ setenv("NCAR_LDFLAGS_${WRAPNAME^^}", libpath)
 setenv("NCAR_LIBS_${WRAPNAME^^}", libs)
 EOF
 fi
-
-# ===== CLEAN FILES
-
-echo "Cleaning source files ..."
-rm -rf source-*
