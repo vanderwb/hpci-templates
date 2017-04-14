@@ -4,14 +4,14 @@
 #
 #HPCI -n 
 #HPCI -v
-#HPCI -x module load ncarenv
-#HPCI -x module load @CMOD
-#HPCI -x module load ncarcompilers
-#HPCI -x module load @MMOD
+#HPCI -l ncarenv
+#HPCI -l @CMOD
+#HPCI -l ncarcompilers
+#HPCI -l @MMOD
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    14:43, 13 Mar 2017
+#	Revised:    10:39, 14 Apr 2017
 
 # ===== BUILD CONFIGURATION
 
