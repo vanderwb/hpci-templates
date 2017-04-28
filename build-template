@@ -11,7 +11,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    10:39, 14 Apr 2017
+#	Revised:    09:36, 28 Apr 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -269,7 +269,7 @@ cat >> $MODFILE << EOF
 ]])
 
 -- Set prerequisites and conflicts
-prereq("")
+prereq(${HPCI_MOD_PREREQ})
 conflict("")
 
 -- Set paths for software binaries, libraries, headers, and manuals
