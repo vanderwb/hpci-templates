@@ -11,7 +11,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    09:36, 28 Apr 2017
+#	Revised:    11:23, 03 May 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -112,7 +112,7 @@ for P in ${!SWPKGS[@]}; do
 	# Unpackage source files
 	echo "Preparing source files ..."
 	rm -rf source-$PKG
-	PKGSRC=$(ls -d -1 $PKG* | head -1)
+	PKGSRC=$(ls -d -1 $PKG ${PKG}.[!0-9]* 2> /dev/null | head -1)
 
 	if [[ -e $PKGSRC ]]; then
 		case $PKGSRC in
