@@ -11,7 +11,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    11:23, 03 May 2017
+#	Revised:    11:51, 24 Jul 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -73,10 +73,16 @@ fi
 
 # If python package, get version and adjust SWTYPE
 if [[ $SWTYPE == pythonpkgs ]]; then
-	PYMAJOR=$(python --version |& cut -c 8-10)
+	PYMAJOR=$(grep -oP 'python/.{0,3}' <<< $LOADEDMODULES | tr -d [h-y,/])
 
 	if [[ $HOSTNAME == [cl]* ]]; then
 		SWTYPE=
+	fi
+
+	if [[ $PYMAJOR == 3.* ]]; then
+		VECMD=pyvenv
+	else
+		VECMD=virtualenv
 	fi
 
 	echo "Building for Python ${PYMAJOR} ..."
@@ -186,21 +192,21 @@ for P in ${!SWPKGS[@]}; do
 			mkdir -p ${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages
 			export PYTHONPATH=${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages:$PYTHONPATH
 
-			run_cmd "python setup.py build $BUILDOPTS" python-build
-			run_cmd "python setup.py install --prefix=$HPCI_SW_DIR" python-install
+			run_cmd "python${PYMAJOR} setup.py build $BUILDOPTS" python-build
+			run_cmd "python${PYMAJOR} setup.py install --prefix=$HPCI_SW_DIR" python-install
 			;;
 		wheel)
-			# Build in a virtual environment
-			virtualenv --system-site-packages hpci_env
+			# Build wheel in a virtual environment
+			$VECMD --system-site-packages hpci_env
 			source hpci_env/bin/activate
-
-			# Create the wheel, then install it using pip
-			run_cmd "python setup.py bdist_wheel --dist-dir=${HPCI_SW_DIR}/wheel $BUILDOPTS" python-wheel
+			run_cmd "python${PYMAJOR} setup.py bdist_wheel --dist-dir=${HPCI_SW_DIR}/wheel $BUILDOPTS" python-wheel
+			deactivate
+			
+			# Install wheel to system library
 			cd $HPCI_SW_DIR
 			WHEEL=$(ls wheel/ | cut -d '-' -f 1)
-			run_cmd "pip --no-cache-dir install --prefix . --no-index -f wheel ${WHEEL}" python-install
+			run_cmd "pip${PYMAJOR} --no-cache-dir install --prefix . --no-index -f wheel ${WHEEL}" python-install
 			cd - > /dev/null
-			deactivate
 			;;
 		custom)
 			;;
