@@ -11,7 +11,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    11:51, 24 Jul 2017
+#	Revised:    16:22, 07 Sep 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -127,7 +127,7 @@ for P in ${!SWPKGS[@]}; do
 				mv $PKG source-$PKG
 				;;
 			*.zip)
-				unzip -d source $PKGSRC > /dev/null
+				unzip $PKGSRC > /dev/null
 				mv $PKG source-$PKG
 				;;
 			*)
