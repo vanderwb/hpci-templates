@@ -11,7 +11,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    16:22, 07 Sep 2017
+#	Revised:    11:16, 10 Oct 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -56,7 +56,7 @@ case $LMOD_FAMILY_COMPILER in
 
 		export CC=pgcc
 		export CXX=pgc++
-		export FC=pgif90
+		export FC=pgf90
 		;;
 	*)
 		;;
