@@ -11,7 +11,7 @@
 #HPCI -a 
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    11:16, 10 Oct 2017
+#	Revised:    11:50, 11 Oct 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -73,7 +73,7 @@ fi
 
 # If python package, get version and adjust SWTYPE
 if [[ $SWTYPE == pythonpkgs ]]; then
-	PYMAJOR=$(grep -oP 'python/.{0,3}' <<< $LOADEDMODULES | tr -d [h-y,/])
+	PYMAJOR=$(module list |& grep -oP ' python/.{0,3}' | tr -d [h-y,/])
 
 	if [[ $HOSTNAME == [cl]* ]]; then
 		SWTYPE=
