@@ -11,7 +11,11 @@
 #HPCI -a
 
 #	Maintainer: Brian Vanderwende
+<<<<<<< HEAD
 #	Revised:    20:02, 17 Oct 2017
+=======
+#	Revised:    13:21, 11 Oct 2017
+>>>>>>> 1c0b6461021232c0424fee65e275f4513f861faa
 
 # ===== BUILD CONFIGURATION
 
@@ -51,8 +55,16 @@ fi
 
 # If python package, get version and adjust SWTYPE
 if [[ $SWTYPE == pythonpkgs ]]; then
+<<<<<<< HEAD
 	PYMAJOR=$(grep -oP 'python/.{0,3}' <<< $LOADEDMODULES | tr -d [h-y,/])
 	SWTYPE=
+=======
+	PYMAJOR=$(module list |& grep -oP ' python/.{0,3}' | cut -d/ -f2)
+
+	if [[ $HOSTNAME == [cl]* ]]; then
+		SWTYPE=
+	fi
+>>>>>>> 1c0b6461021232c0424fee65e275f4513f861faa
 
 	if [[ $PYMAJOR == 3.* ]]; then
 		VECMD=pyvenv
