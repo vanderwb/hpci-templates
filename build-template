@@ -5,13 +5,13 @@
 #HPCI -n 
 #HPCI -v
 #HPCI -l ncarenv
-#HPCI -l @CMOD
+#HPCI -l gnu/6.3.0
 #HPCI -l ncarcompilers
-#HPCI -l @MMOD
-#HPCI -a 
+#HPCI -l mpt/2.15f
+#HPCI -a
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    11:16, 10 Oct 2017
+#	Revised:    20:02, 17 Oct 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -38,33 +38,11 @@ SWPKGS[0]=${SWTAG}
 SWBTOOL[0]=
 
 echo -e "\n>>> BEGINNING BUILD [${SWTAG}]\n"
+echo "Building with ${LMOD_FAMILY_COMPILER} compilers ..."
 
-# Set compiler specific settings
-case $LMOD_FAMILY_COMPILER in
-	gnu)
-		echo "Building with GNU compilers ..."
-		;;
-	intel)
-		echo "Building with Intel compilers ..."
-
-		export CC=icc
-		export CXX=icpc
-		export FC=ifort
-		;;
-	pgi)
-		echo "Building with PGI compilers ..."
-
-		export CC=pgcc
-		export CXX=pgc++
-		export FC=pgf90
-		;;
-	*)
-		;;
-esac
-
-# If MPI program, use those wrappers
+# If MPI program, use MPI wrappers for compilers
 if [[ $SWTYPE == dmpi ]]; then
-	echo "Using MPI wrappers ..."
+	echo "Using ${LMOD_FAMILY_MPI} MPI library ..."
 
 	export CC=mpicc
 	export CXX=mpicxx
@@ -74,10 +52,7 @@ fi
 # If python package, get version and adjust SWTYPE
 if [[ $SWTYPE == pythonpkgs ]]; then
 	PYMAJOR=$(grep -oP 'python/.{0,3}' <<< $LOADEDMODULES | tr -d [h-y,/])
-
-	if [[ $HOSTNAME == [cl]* ]]; then
-		SWTYPE=
-	fi
+	SWTYPE=
 
 	if [[ $PYMAJOR == 3.* ]]; then
 		VECMD=pyvenv
@@ -91,62 +66,40 @@ fi
 # ===== BUILD EACH SOFTWARE PACKAGE AS SCHEDULED
 
 function run_cmd {
-	CMD=$1 CMDNAME=$1
+	echo -e "\n>>> RUNNING COMMAND [${1}]\n"
 
-	if [[ ! -z "$2" ]]; then
-		CMDNAME=$2
-	fi
+	eval $1
+	RETVAL=${PIPESTATUS[0]}
 
-	echo -e "\n>>> RUNNING COMMAND [${CMDNAME}]\n"
-
-	eval $CMD
-	CMDCODE=${PIPESTATUS[0]}
-
-	if [[ $CMDCODE != 0 ]]; then
-		echo -e "\n*** ERROR: $CMDNAME exited with code ${CMDCODE}! Exiting ..."
+	if [[ $RETVAL != 0 ]]; then
+		echo -e "\n*** ERROR: command exited with code ${RETVAL}! Exiting ..."
 		exit 1
 	fi
 }
 
-# Make build directory to store source files since HPCI won't do it until later
-mkdir -p ${HPCI_SW_DIR}/BUILD_DIR
+# Unpackage source files
+echo "Preparing source files ..."
+rm -rf source-${SWTAG}
+
+if [[ -e source-${SWTAG}.tar.gz ]]; then
+	tar -xvf source-${SWTAG}.tar.gz
+else
+	echo -e "\n*** ERROR: source for $PKG does not exist! Exiting ..."
+	exit 2
+fi
 
 for P in ${!SWPKGS[@]}; do
 	PKG=${SWPKGS[$P]}
+
 	echo -e "\n$((P + 1))) BUILDING PACKAGE [${PKG}] ...\n"
-	
-	# Unpackage source files
-	echo "Preparing source files ..."
-	rm -rf source-$PKG
-	PKGSRC=$(ls -d -1 $PKG ${PKG}.[!0-9]* 2> /dev/null | head -1)
-
-	if [[ -e $PKGSRC ]]; then
-		case $PKGSRC in
-			*.tar* | *.tgz)
-				tar -xvf $PKGSRC > /dev/null
-				mv $PKG source-$PKG
-				;;
-			*.zip)
-				unzip $PKGSRC > /dev/null
-				mv $PKG source-$PKG
-				;;
-			*)
-				cp -r $PKGSRC source-$PKG
-				;;
-		esac
-	else
-		echo -e "\n*** ERROR: source for $PKG does not exist! Exiting ..."
-		exit 1
-	fi
-
-	cd source-$PKG
+	cd source-${SWTAG}/$PKG
 
 # ===== BUILD AND INSTALL THE SOFTWARE
 
 	# Define settings and prepare source files for package
 	case $PKG in
 		${SWTAG})
-			export CPPFLAGS=
+			export CPPFLAGS=-fPIC
 			BUILDOPTS=
 			;;
 		*)
@@ -173,46 +126,43 @@ for P in ${!SWPKGS[@]}; do
 			;&
 		make)
 			run_cmd "./configure --prefix=$HPCI_SW_DIR $BUILDOPTS"
-			run_cmd "make"
-			run_cmd "make install" make-install
+			run_cmd make
+			run_cmd "make install"
 			;;
 		cmake)
 			mkdir build; cd build
 			BUILDOPTS="-DCMAKE_INSTALL_PREFIX=$HPCI_SW_DIR $BUILDOPTS"
 			
 			run_cmd "cmake $BUILDOPTS .."
-			run_cmd "cmake --build . --target install" cmake-install
+			run_cmd "cmake --build . --target install"
 			;;
 		perl)
-			run_cmd "perl Makefile.PL PREFIX=$HPCI_SW_DIR $BUILDOPTS" perl-config
-			run_cmd make perl-make
-			run_cmd "make install" perl-install
+			run_cmd "perl Makefile.PL PREFIX=$HPCI_SW_DIR $BUILDOPTS"
+			run_cmd make
+			run_cmd "make install"
 			;;
 		setuptools)
 			mkdir -p ${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages
 			export PYTHONPATH=${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages:$PYTHONPATH
 
-			run_cmd "python${PYMAJOR} setup.py build $BUILDOPTS" python-build
-			run_cmd "python${PYMAJOR} setup.py install --prefix=$HPCI_SW_DIR" python-install
+			run_cmd "python${PYMAJOR} setup.py build $BUILDOPTS"
+			run_cmd "python${PYMAJOR} setup.py install --prefix=$HPCI_SW_DIR"
 			;;
 		wheel)
-			# Build wheel in a virtual environment
-			$VECMD --system-site-packages hpci_env
-			source hpci_env/bin/activate
-			run_cmd "python${PYMAJOR} setup.py bdist_wheel --dist-dir=${HPCI_SW_DIR}/wheel $BUILDOPTS" python-wheel
-			deactivate
+			# Build wheel
+			run_cmd "python${PYMAJOR} setup.py bdist_wheel --dist-dir=${HPCI_SW_DIR}/wheel $BUILDOPTS"
 			
 			# Install wheel to system library
 			cd $HPCI_SW_DIR
 			WHEEL=$(ls wheel/ | cut -d '-' -f 1)
-			run_cmd "pip${PYMAJOR} --no-cache-dir install --prefix . --no-index -f wheel ${WHEEL}" python-install
+			run_cmd "pip${PYMAJOR} --no-cache-dir install --prefix . --no-index -f wheel ${WHEEL}"
 			cd - > /dev/null
 			;;
 		custom)
 			;;
 	esac
 
-	cd ..
+	cd ../../
 done
 
 echo -e "\n<<< BUILD COMPLETE!\n"
@@ -220,33 +170,26 @@ echo -e "\n<<< BUILD COMPLETE!\n"
 # ===== CLEAN FILES
 
 echo "Cleaning source files ..."
-rm -rf source-*
+rm -rf source-${SWTAG}
 
 # ===== INSTALL THE MODULE
 
+# If module is desired, set path for lua file
 if [[ $SWTYPE == none ]]; then
 	exit 0
-fi
-
-# Set path for the module file
-if [[ $HOSTNAME == [jy]* ]] && [[ $USER != csgteam ]]; then
-	MODPATH=$HPCI_MOD_DIR
+elif [[ $SWTYPE == d* ]]; then
+	MODPATH=${HPCI_MOD_DIR_CDEP}/$HPCI_SW_NAME
 else
-	if [[ $SWTYPE == d* ]]; then
-		MODPATH=$HPCI_MOD_DIR_CDEP
-	else
-		MODPATH=${HPCI_MOD_DIR}/$SWTYPE
-	fi
+	MODPATH=${HPCI_MOD_DIR}/${SWTYPE}/$HPCI_SW_NAME
 fi
 
-MODPATH=${MODPATH}/$HPCI_SW_NAME
 MODFILE=${MODPATH}/${HPCI_SW_VERSION}.lua
 WRAPNAME=${SWNAME//[^A-Za-z0-9]/}
+DEPLIST=$(module list 2>&1 | awk -F '[0-9, ][0-9])' '{for(i=2;i<=NF;i++) {print "  "$i}}')
 
 echo "Configuring and installing modulefile ..."
 echo "Path: ${MODFILE}"
 
-# Configure the module file for this particular build
 # Need to ensure group write access so git repository is consistent
 umask 0002
 mkdir -p $MODPATH
@@ -266,13 +209,7 @@ Software website - ${SWSITE}
 
 Built on $(date)
 Modules used:
-EOF
-
-# Write out list of build dependencies
-module list 2>&1 | awk -F '[0-9, ][0-9])' '{for(i=2;i<=NF;i++) {print "  "$i}}' >> $MODFILE
-
-cat >> $MODFILE << EOF
-]])
+${DEPLIST}
 
 -- Set prerequisites and conflicts
 prereq(${HPCI_MOD_PREREQ})
@@ -293,17 +230,7 @@ prepend_path("PYTHONPATH", pypath)
 prepend_path("MANPATH", manpath)
 
 -- Configure NCAR compiler wrappers to use headers and libraries
-EOF
-
-if [[ $HOSTNAME == [jy]* ]]; then
-cat >> $MODFILE << EOF
-prepend_path("INC_NCAR", "-I" .. incpath, " ")
-prepend_path("LIB_NCAR", "-L" .. libpath .. " " .. libs .. " -Wl,-rpath," .. libpath, " ")
-EOF
-else
-cat >> $MODFILE << EOF
 setenv("NCAR_INC_${WRAPNAME^^}", incpath)
 setenv("NCAR_LDFLAGS_${WRAPNAME^^}", libpath)
 setenv("NCAR_LIBS_${WRAPNAME^^}", libs)
 EOF
-fi
