@@ -11,7 +11,7 @@
 #HPCI -a
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    15:43, 26 Oct 2017
+#	Revised:    16:18, 26 Oct 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -94,7 +94,7 @@ for P in ${!SWPKGS[@]}; do
 	# Define settings and prepare source files for package
 	case $PKG in
 		${SWFILE})
-			export CPPFLAGS=-fPIC
+			export {CPPFLAGS,CFLAGS,CXXFLAGS,FFLAGS,FCFLAGS,F77FLAGS,F90FLAGS}=-fPIC
 			BUILDOPTS=
 			;;
 		*)
