@@ -11,7 +11,7 @@
 #HPCI -a
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    16:53, 23 Oct 2017
+#	Revised:    15:43, 26 Oct 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -137,17 +137,15 @@ for P in ${!SWPKGS[@]}; do
 			run_cmd "make install"
 			;;
 		pylib)
-			mkdir -p ${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages
-			export PYTHONPATH=${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages:$PYTHONPATH
-
+			# Load latest virtual environment and install into VE library
+			source ncar-pylib
 			run_cmd "python${PYMAJOR} setup.py build $BUILDOPTS"
-			run_cmd "python${PYMAJOR} setup.py install --prefix=$HPCI_SW_DIR"
+			run_cmd "python${PYMAJOR} setup.py install"
+			deactivate
 			;;
 		wheel)
-			# Build wheel
+			# Build wheel for VEs, then install as prefixed packaged
 			run_cmd "python${PYMAJOR} setup.py bdist_wheel --dist-dir=${HPCI_SW_DIR}/wheel $BUILDOPTS"
-			
-			# Install wheel to system library
 			cd $HPCI_SW_DIR
 			WHEEL=$(ls wheel/ | cut -d '-' -f 1)
 			run_cmd "pip${PYMAJOR} --no-cache-dir install --prefix . --no-index -f wheel ${WHEEL}"
