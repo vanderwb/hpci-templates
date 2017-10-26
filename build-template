@@ -11,7 +11,7 @@
 #HPCI -a
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    16:18, 26 Oct 2017
+#	Revised:    16:44, 26 Oct 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -77,7 +77,7 @@ echo "Preparing source files ..."
 rm -rf source-${SWFILE}
 
 if [[ -e source-${SWFILE}.tar.gz ]]; then
-	tar -xvf source-${SWFILE}.tar.gz
+	tar -xf source-${SWFILE}.tar.gz
 else
 	echo -e "\n*** ERROR: source for $PKG does not exist! Exiting ..."
 	exit 2
