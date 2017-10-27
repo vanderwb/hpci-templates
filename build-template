@@ -11,7 +11,7 @@
 #HPCI -a
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    16:44, 26 Oct 2017
+#	Revised:    11:39, 27 Oct 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -72,22 +72,24 @@ function run_cmd {
 	fi
 }
 
-# Unpackage source files
-echo "Preparing source files ..."
-rm -rf source-${SWFILE}
-
-if [[ -e source-${SWFILE}.tar.gz ]]; then
-	tar -xf source-${SWFILE}.tar.gz
-else
-	echo -e "\n*** ERROR: source for $PKG does not exist! Exiting ..."
-	exit 2
-fi
-
 for P in ${!SWPKGS[@]}; do
 	PKG=${SWPKGS[$P]}
 
 	echo -e "\n$((P + 1))) BUILDING PACKAGE [${PKG}] ...\n"
-	cd source-${SWFILE}/$PKG
+	
+	# Unpackage source files
+	echo "Preparing source files ..."
+	rm -rf source-$PKG
+
+	if [[ -e ${PKG}.tar.gz ]]; then
+		tar -xf ${PKG}.tar.gz
+		mv $(ls -rt -1 | head -1) source-$PKG
+	else
+		echo -e "\n*** ERROR: source for $PKG does not exist! Exiting ..."
+		exit 2
+	fi
+
+	cd source-$PKG
 
 # ===== BUILD AND INSTALL THE SOFTWARE
 
@@ -155,7 +157,7 @@ for P in ${!SWPKGS[@]}; do
 			;;
 	esac
 
-	cd ../../
+	cd ../
 done
 
 echo -e "\n<<< BUILD COMPLETE!\n"
@@ -163,7 +165,7 @@ echo -e "\n<<< BUILD COMPLETE!\n"
 # ===== CLEAN FILES
 
 echo "Cleaning source files ..."
-rm -rf source-${SWFILE}
+rm -rf source-*
 
 # ===== INSTALL THE MODULE
 
