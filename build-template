@@ -11,7 +11,7 @@
 #HPCI -a
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    11:39, 27 Oct 2017
+#	Revised:    13:28, 27 Oct 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -82,8 +82,8 @@ for P in ${!SWPKGS[@]}; do
 	rm -rf source-$PKG
 
 	if [[ -e ${PKG}.tar.gz ]]; then
-		tar -xf ${PKG}.tar.gz
-		mv $(ls -rt -1 | head -1) source-$PKG
+		SRCDIR=$(tar -xvf ${PKG}.tar.gz | head -1)
+		mv $SRCDIR source-$PKG
 	else
 		echo -e "\n*** ERROR: source for $PKG does not exist! Exiting ..."
 		exit 2
