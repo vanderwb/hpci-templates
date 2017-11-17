@@ -11,12 +11,12 @@
 #HPCI -a
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    17:28, 27 Oct 2017
+#	Revised:    14:44, 16 Nov 2017
 
 # ===== BUILD CONFIGURATION
 
 # Module configuration
-#   SWTYPE determines module location: idep, compiler, dcomp, dmpi, none
+#   SWTYPE determines module location: idep, compilers, dcomp, dmpi, none
 #   SWDESC provides "Help" description of software (use \n\n for paragraphs)
 #   SWSITE provides "Help" website for software
 #   SWLIBS provides library calls necessary to compile against software
