@@ -11,7 +11,7 @@
 #HPCI -a
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    15:02, 06 Dec 2017
+#	Revised:    14:54, 11 Dec 2017
 
 # ===== BUILD CONFIGURATION
 
@@ -72,6 +72,10 @@ function run_cmd {
 	fi
 }
 
+# Make directory for build using PID to avoid clobbers from multiple builds
+BPID=$$
+mkdir -p $BPID
+
 for P in ${!SWPKGS[@]}; do
 	PKG=${SWPKGS[$P]}
 
@@ -79,17 +83,16 @@ for P in ${!SWPKGS[@]}; do
 	
 	# Unpackage source files
 	echo "Preparing source files ..."
-	rm -rf source-$PKG
 
 	if [[ -e ${PKG}.tar.gz ]]; then
 		SRCDIR=$(tar -xvf ${PKG}.tar.gz | head -1 | cut -d '/' -f1)
-		mv $SRCDIR source-$PKG
+		mv $SRCDIR ${BPID}/$PKG
 	else
 		echo -e "\n*** ERROR: source for $PKG does not exist! Exiting ..."
 		exit 2
 	fi
 
-	cd source-$PKG
+	cd ${BPID}/$PKG
 
 # ===== BUILD AND INSTALL THE SOFTWARE
 
@@ -156,7 +159,7 @@ for P in ${!SWPKGS[@]}; do
 			;;
 	esac
 
-	cd ../
+	cd ../../
 done
 
 echo -e "\n<<< BUILD COMPLETE!\n"
@@ -164,7 +167,7 @@ echo -e "\n<<< BUILD COMPLETE!\n"
 # ===== CLEAN FILES
 
 echo "Cleaning source files ..."
-rm -rf source-*
+rm -rf $BPID
 
 # ===== INSTALL THE MODULE
 
