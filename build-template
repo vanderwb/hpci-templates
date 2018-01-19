@@ -11,7 +11,7 @@
 #HPCI -a
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    22:48, 16 Jan 2018
+#	Revised:    16:06, 19 Jan 2018
 
 # ===== BUILD CONFIGURATION
 
@@ -51,12 +51,6 @@ fi
 
 # If python is loaded, get version
 PYMAJOR=$(module list |& grep -oP ' python/.{0,3}' | cut -d/ -f2)
-
-if [[ $PYMAJOR == 3.* ]]; then
-	VECMD=pyvenv
-else
-	VECMD=virtualenv
-fi
 
 # ===== BUILD EACH SOFTWARE PACKAGE AS SCHEDULED
 
