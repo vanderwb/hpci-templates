@@ -1,0 +1,7 @@
+# Load latest virtual environment and install into VE library
+source ${NPLROOT}/pkg-library/${PYLIBVER}/bin/activate
+run_cmd "pip -v install $BUILDOPTS $PWD"
+
+# Test loading the package
+run_cmd "python -c \"import ${SWNAME}\""
+deactivate

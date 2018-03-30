@@ -1,0 +1,10 @@
+# Build wheel for VEs, then install as prefixed packaged
+run_cmd "python${PYMAJOR} setup.py bdist_wheel --dist-dir=${HPCI_SW_DIR}/wheel $BUILDOPTS"
+cd $HPCI_SW_DIR
+WHEEL=$(ls wheel/ | cut -d '-' -f 1)
+run_cmd "pip${PYMAJOR} --no-cache-dir install --prefix . --no-index -f wheel ${WHEEL}"
+cd - > /dev/null
+
+# Test loading the package
+export PYTHONPATH=${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages:$PYTHONPATH
+run_cmd "python -c \"import ${SWNAME}\""

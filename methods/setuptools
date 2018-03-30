@@ -1,0 +1,9 @@
+# Create path for package and build-install into it
+mkdir -p ${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages
+export PYTHONPATH=${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages:$PYTHONPATH
+
+run_cmd "python setup.py build $BUILDOPTS"
+run_cmd "python setup.py install --prefix=$HPCI_SW_DIR"
+
+# Set importing the package
+run_cmd "python -c \"import ${SWNAME}\""
