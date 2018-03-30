@@ -11,7 +11,7 @@
 #HPCI -a
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    15:07, 22 Jan 2018
+#	Revised:    22:15, 29 Mar 2018
 
 # ===== BUILD CONFIGURATION
 
@@ -137,7 +137,7 @@ for P in ${!SWPKGS[@]}; do
 			;;
 		pylib)
 			# Load latest virtual environment and install into VE library
-			source ncar_pylib
+			source ${NPLROOT}/pkg-library/${PYLIBVER}/bin/activate
 			run_cmd "pip -v install $BUILDOPTS $PWD"
 			deactivate
 			;;
