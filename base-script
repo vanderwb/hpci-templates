@@ -2,15 +2,15 @@
 #
 # ===== HPCINSTALL BUILD SCRIPT
 #
-#HPCI -n %NAME%
-#HPCI -v %VERSION%
+#HPCI -n 
+#HPCI -v 
 #HPCI -l ncarenv
 #HPCI -l gnu/6.3.0
 #HPCI -l ncarcompilers
-#HPCI -a %NAME%-%VERSION%.tar.gz
+#HPCI -a .tar.gz
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    11:41, 30 Mar 2018
+#	Revised:    09:44, 19 Apr 2018
 
 # ===== BUILD CONFIGURATION
 
