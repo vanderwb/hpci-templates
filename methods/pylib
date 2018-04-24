@@ -2,6 +2,8 @@
 source ${NPLROOT}/pkg-library/${PYLIBVER}/bin/activate
 run_cmd "pip -v install $BUILDOPTS $PWD"
 
+cd ../../
+
 # Test loading the package
 run_cmd "python -c \"import ${SWNAME}\""
 deactivate

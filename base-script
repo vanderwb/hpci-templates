@@ -10,7 +10,7 @@
 #HPCI -a .tar.gz
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    09:44, 19 Apr 2018
+#	Revised:    15:42, 24 Apr 2018
 
 # ===== BUILD CONFIGURATION
 
@@ -84,8 +84,6 @@ cd ${BPID}/${SWPKGS[0]}
 BUILDOPTS=
 	
 %METHOD%
-
-cd ../../
 
 # ===== CLEAN FILES
 

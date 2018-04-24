@@ -18,3 +18,5 @@ run_cmd make
 # Test and install the package
 run_cmd "make check"
 run_cmd "make install"
+
+cd ../../

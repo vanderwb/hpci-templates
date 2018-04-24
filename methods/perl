@@ -2,3 +2,5 @@
 run_cmd "perl Makefile.PL PREFIX=$HPCI_SW_DIR $BUILDOPTS"
 run_cmd make
 run_cmd "make install"
+
+cd ../../

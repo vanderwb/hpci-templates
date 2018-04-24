@@ -4,3 +4,5 @@ BUILDOPTS="-DCMAKE_INSTALL_PREFIX=$HPCI_SW_DIR $BUILDOPTS"
 
 run_cmd "cmake $BUILDOPTS .."
 run_cmd "cmake --build . --target install"
+
+cd ../../../
