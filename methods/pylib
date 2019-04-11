@@ -1,6 +1,6 @@
 # Load latest virtual environment and install into VE library
 source ${NPLROOT}/pkg-library/${PYLIBVER}/bin/activate
-run_cmd "pip -v install $BUILDOPTS $PWD"
+run_cmd "pip -v install --no-build-isolation $BUILDOPTS $PWD"
 
 cd ../../
 

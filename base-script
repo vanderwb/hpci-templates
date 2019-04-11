@@ -10,7 +10,7 @@
 #HPCI -a .tar.gz
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    15:42, 24 Apr 2018
+#	Revised:    13:31, 11 Apr 2019
 
 # ===== BUILD CONFIGURATION
 
@@ -39,24 +39,20 @@ PYMAJOR=$(module list |& grep -oP ' python/.{0,3}' | cut -d/ -f2)
 
 if [[ $SWTYPE == dmpi ]]; then
 	echo "Using ${LMOD_FAMILY_MPI} MPI library ..."
-
-	export CC=mpicc
-	export CXX=mpicxx
-	export FC=mpif90
+	export CC=mpicc CXX=mpicxx FC=mpif90
 fi
 
 # Make directory for build using PID to avoid clobbers from multiple builds
 echo "Preparing source files ..."
 BPID=$$
-mkdir -p $BPID
+mkdir -p $BPID; cd $BPID
 
 for P in ${!SWPKGS[@]}; do
 	PKG=${SWPKGS[$P]}
 
 	# Unpackage source files
-	if [[ -e ${PKG}.tar.gz ]]; then
-		SRCDIR=$(tar -xvf ${PKG}.tar.gz 2> /dev/null | head -1 | cut -d '/' -f1)
-		mv $SRCDIR ${BPID}/$PKG
+	if [[ -e ../${PKG}.tar.gz ]]; then
+		mv $(tar -xvf ../${PKG}.tar.gz 2> /dev/null | head -1 | cut -d '/' -f1) $PKG
 	else
 		echo -e "\n*** ERROR: source for $PKG does not exist! Exiting ..."
 		exit 2
@@ -78,7 +74,7 @@ function run_cmd {
 }
 
 echo -e "\n1) BUILDING PACKAGE [${SWPKGS[0]}] ...\n"
-cd ${BPID}/${SWPKGS[0]}
+cd ${SWPKGS[0]}
 
 # Define config/build options for package
 BUILDOPTS=

@@ -11,12 +11,9 @@ else
     run_cmd "automake -af --copy"
 fi
 
-# Build the package using config-make
+# Build and install the package using config-make
 run_cmd "./configure --prefix=$HPCI_SW_DIR $BUILDOPTS"
 run_cmd make
-
-# Test and install the package
-run_cmd "make check"
 run_cmd "make install"
 
 cd ../../
