@@ -2,7 +2,7 @@
 mkdir -p ${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages
 export PYTHONPATH=${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages:$PYTHONPATH
 
-run_cmd "python setup.py build $BUILDOPTS"
+run_cmd "python setup.py build"
 run_cmd "python setup.py install --prefix=$HPCI_SW_DIR"
 
 cd ../../

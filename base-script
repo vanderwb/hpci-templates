@@ -10,7 +10,7 @@
 #HPCI -a .tar.gz
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    10:43, 12 Apr 2019
+#	Revised:    16:14, 12 Apr 2019
 
 # ===== BUILD CONFIGURATION
 
@@ -45,14 +45,15 @@ fi
 # Make directory for build using PID to avoid clobbers from multiple builds
 echo "Preparing source files ..."
 BPID=$$
-mkdir -p ${BPID}/src; cd ${BPID}/src
+mkdir -p $BPID; cd $BPID
 
 for P in ${!SWPKGS[@]}; do
 	PKG=${SWPKGS[$P]}
 
 	# Unpackage source files
-	if [[ -e ../../${PKG}.tar.gz ]]; then
-		ln -s $(tar -xvf ../../${PKG}.tar.gz 2> /dev/null | head -1 | cut -d '/' -f1) ../$PKG
+	if [[ -e ../${PKG}.tar.gz ]]; then
+		SRCDIR=$(tar -xvf ../${PKG}.tar.gz 2> /dev/null | head -1 | cut -d '/' -f1)
+        [[ $SRCDIR != $PKG ]] && mv $SRCDIR $PKG
 	else
 		echo -e "\n*** ERROR: source for $PKG does not exist! Exiting ..."
 		exit 2
@@ -76,9 +77,6 @@ function run_cmd {
 echo -e "\n1) BUILDING PACKAGE [${SWPKGS[0]}] ...\n"
 cd ${SWPKGS[0]}
 
-# Define config/build options for package
-BUILDOPTS=
-	
 %METHOD%
 
 # ===== CLEAN FILES

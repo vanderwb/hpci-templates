@@ -1,5 +1,5 @@
 # Build wheel for VEs, then install as prefixed packaged
-run_cmd "python${PYMAJOR} setup.py bdist_wheel --dist-dir=${HPCI_SW_DIR}/wheel $BUILDOPTS"
+run_cmd "python${PYMAJOR} setup.py bdist_wheel --dist-dir=${HPCI_SW_DIR}/wheel"
 cd $HPCI_SW_DIR
 WHEEL=$(ls wheel/ | cut -d '-' -f 1)
 run_cmd "pip${PYMAJOR} --no-cache-dir install --prefix . --no-index -f wheel ${WHEEL}"

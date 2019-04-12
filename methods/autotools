@@ -12,7 +12,7 @@ else
 fi
 
 # Build and install the package using config-make
-run_cmd "./configure --prefix=$HPCI_SW_DIR $BUILDOPTS"
+run_cmd "./configure --prefix=$HPCI_SW_DIR"
 run_cmd make
 run_cmd "make install"
 

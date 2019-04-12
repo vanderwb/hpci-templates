@@ -1,5 +1,5 @@
 # Build and install the package
-run_cmd "perl Makefile.PL PREFIX=$HPCI_SW_DIR $BUILDOPTS"
+run_cmd "perl Makefile.PL PREFIX=$HPCI_SW_DIR"
 run_cmd make
 run_cmd "make install"
 
