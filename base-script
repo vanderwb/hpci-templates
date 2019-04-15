@@ -10,7 +10,7 @@
 #HPCI -a .tar.gz
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    16:14, 12 Apr 2019
+#	Revised:    10:03, 15 Apr 2019
 
 # ===== BUILD CONFIGURATION
 
@@ -129,17 +129,21 @@ conflict("")
 
 -- Set paths for software binaries, libraries, headers, and manuals
 local basepath = "${HPCI_SW_DIR}"
-local binpath  = pathJoin(basepath, "/bin")             -- binaries
+local libpath  = pathJoin(basepath, "/bin")             -- binaries
 local libpath  = pathJoin(basepath, "/lib")             -- libraries
 local incpath  = pathJoin(basepath, "/include")         -- include files
+local pkgpath  = pathJoin(libpath,  "/pkgconfig")       -- pc files
 local manpath  = pathJoin(basepath, "/share/man")       -- man pages
+local infopath = pathJoin(basepath, "/share/info")      -- info pages
 local pypath   = pathJoin(basepath, "/lib/python${PYMAJOR}/site-packages")
 local libs     = "${MODLIBS}"
 
--- Update the binary and manual paths in user environment
+-- Update path variables in user environment
 prepend_path("PATH", binpath)
+prepend_path("PKG_CONFIG_PATH", pkgpath)
 prepend_path("PYTHONPATH", pypath)
 prepend_path("MANPATH", manpath)
+prepend_path("INFOPATH", infopath)
 
 -- Configure NCAR compiler wrappers to use headers and libraries
 setenv("NCAR_INC_${WRAPNAME^^}", incpath)
