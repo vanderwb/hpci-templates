@@ -1,5 +1,11 @@
-# Load latest virtual environment and install into VE library
-source ${NPLROOT}/pkg-library/${PYLIBVER}/bin/activate
+# Load latest virtual environment or create one if a test instance
+if [[ $USER == csgteam ]]; then
+    source ${NPLROOT}/pkg-library/${PYLIBVER}/bin/activate
+else
+    ncar_pylib -c latest /glade/scratch/$USER/npl-$HPCI_SW_DIR
+    source /glade/scratch/$USER/npl-${HPCI_SW_DIR}/bin/activate
+fi
+
 run_cmd "pip -v install --no-build-isolation $PWD"
 
 cd ../../

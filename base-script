@@ -10,7 +10,7 @@
 #HPCI -a .tar.gz
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    10:03, 15 Apr 2019
+#	Revised:    10:00, 17 Apr 2019
 
 # ===== BUILD CONFIGURATION
 
@@ -129,7 +129,7 @@ conflict("")
 
 -- Set paths for software binaries, libraries, headers, and manuals
 local basepath = "${HPCI_SW_DIR}"
-local libpath  = pathJoin(basepath, "/bin")             -- binaries
+local binpath  = pathJoin(basepath, "/bin")             -- binaries
 local libpath  = pathJoin(basepath, "/lib")             -- libraries
 local incpath  = pathJoin(basepath, "/include")         -- include files
 local pkgpath  = pathJoin(libpath,  "/pkgconfig")       -- pc files
@@ -146,6 +146,7 @@ prepend_path("MANPATH", manpath)
 prepend_path("INFOPATH", infopath)
 
 -- Configure NCAR compiler wrappers to use headers and libraries
+setenv("NCAR_ROOT_${WRAPNAME^^}", basepath)
 setenv("NCAR_INC_${WRAPNAME^^}", incpath)
 setenv("NCAR_LDFLAGS_${WRAPNAME^^}", libpath)
 setenv("NCAR_LIBS_${WRAPNAME^^}", libs)
