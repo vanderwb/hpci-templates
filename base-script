@@ -10,7 +10,7 @@
 #HPCI -a .tar.gz
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    10:40, 25 Jun 2019
+#	Revised:    11:14, 25 Jun 2019
 
 # ===== BUILD CONFIGURATION
 
@@ -145,7 +145,7 @@ prepend_path("PYTHONPATH", pypath)
 prepend_path("MANPATH", manpath)
 prepend_path("INFOPATH", infopath)
 
--- Configure NCAR compiler wrappers to use headers and libraries
+-- Set NCAR-specific environment settings
 setenv("NCAR_ROOT_${WRAPNAME^^}", basepath)
 setenv("NCAR_INC_${WRAPNAME^^}", incpath)
 setenv("NCAR_LDFLAGS_${WRAPNAME^^}", libpath)
