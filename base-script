@@ -10,7 +10,7 @@
 #HPCI -a .tar.gz
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    10:00, 17 Apr 2019
+#	Revised:    09:27, 30 Apr 2019
 
 # ===== BUILD CONFIGURATION
 
@@ -63,13 +63,12 @@ done
 # ===== BUILD AND INSTALL SOFTWARE PACKAGES
 
 function run_cmd {
-	echo -e "\n>>> RUNNING COMMAND [${1}]\n"
-
+	echo -e "\n>>> ${1}\n"
 	eval $1
 	RETVAL=${PIPESTATUS[0]}
 
 	if [[ $RETVAL != 0 ]]; then
-		echo -e "\n*** ERROR: command exited with code ${RETVAL}! Exiting ..."
+		echo -e "\n*** BUILD FAILED: command returned with code ${RETVAL}! Exiting ..."
 		exit 1
 	fi
 }
