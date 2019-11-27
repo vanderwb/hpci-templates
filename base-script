@@ -10,7 +10,7 @@
 #HPCI -a .tar.gz
 
 #	Maintainer: Brian Vanderwende
-#	Revised:    11:14, 25 Jun 2019
+#	Revised:   08:23, 27 Nov 2019
 
 # ===== BUILD CONFIGURATION
 
@@ -74,8 +74,8 @@ function run_cmd {
 	fi
 }
 
-echo -e "\n1) BUILDING PACKAGE [${SWPKGS[0]}] ...\n"
-cd ${SWPKGS[0]}
+echo -e "\n$((++NB))) BUILDING PACKAGE [${SWPKGS[$((NB-1))]}] ...\n"
+cd ${SWPKGS[$((NB-1))]}
 
 %METHOD%
 
