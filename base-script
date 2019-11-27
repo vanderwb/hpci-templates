@@ -8,9 +8,10 @@
 #HPCI -l gnu/6.3.0
 #HPCI -l ncarcompilers
 #HPCI -a .tar.gz
+#HPCI -x export MAKEJOBS=1
 
 #	Maintainer: Brian Vanderwende
-#	Revised:   08:23, 27 Nov 2019
+#	Revised:   08:25, 27 Nov 2019
 
 # ===== BUILD CONFIGURATION
 

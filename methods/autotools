@@ -1,19 +1,11 @@
 # Run autotools to create configure script
-mkdir -p m4
-
 if [[ -f autogen.sh ]]; then
     run_cmd ./autogen.sh
-else
-    run_cmd "libtoolize -f --copy"
-    run_cmd "aclocal -I m4 --install --force"
-    run_cmd "autoheader -f"
-    run_cmd "autoconf -f"
-    run_cmd "automake -af --copy"
 fi
 
 # Build and install the package using config-make
 run_cmd "./configure --prefix=$HPCI_SW_DIR"
-run_cmd make
+run_cmd "make -j $MAKEJOBS V=1"
 run_cmd "make install"
 
 cd ../../
