@@ -11,12 +11,12 @@
 #HPCI -x export MAKEJOBS=1
 
 #	Maintainer: Brian Vanderwende
-#	Revised:   09:02, 17 Dec 2019
+#	Revised:   09:20, 17 Dec 2019
 
 # ===== BUILD CONFIGURATION
 
 # Define global software settings
-# SWTYPE options: idep, compilers, dcomp, dmpi, blank
+# SWTYPE options: idep, compilers, cdep
 SWTYPE=
 SWNAME=${HPCI_SW_NAME##*/}
 
@@ -32,7 +32,7 @@ SWPKGS[0]=${SWNAME}-$HPCI_SW_VERSION
 echo -e "\n>>> BEGINNING BUILD [${SWNAME}-${HPCI_SW_VERSION}]\n"
 echo "Building with ${LMOD_FAMILY_COMPILER} compilers ..."
 
-if [[ $SWTYPE == dmpi ]]; then
+if [[ ${LMOD_FAMILY_MPI}z != z ]]; then
 	echo "Using ${LMOD_FAMILY_MPI} MPI library ..."
 	export CC=mpicc CXX=mpicxx FC=mpif90
 fi
@@ -43,10 +43,8 @@ fi
 echo "Preparing source files ..."
 BDIR=$PWD/$$; mkdir $BDIR; cd $BDIR
 
-for P in ${!SWPKGS[@]}; do
-	PKG=${SWPKGS[$P]}
-
-	# Unpackage source files
+# Unpackage source files
+for PKG in ${SWPKGS[@]}; do
 	if [[ -e ../${PKG}.tar.gz ]]; then
         tar -xf ../${PKG}.tar.gz
 		SRCDIR=$(ls -1c --color=never | head -1)
@@ -87,7 +85,7 @@ cd $BDIR/..; rm -rf $BDIR
 # ===== INSTALL THE MODULE
 
 # Set path for lua file
-if [[ $SWTYPE == d* ]]; then
+if [[ $SWTYPE == cdep ]]; then
 	MODPATH=${HPCI_MOD_DIR_CDEP}/$HPCI_SW_NAME
 else
 	MODPATH=${HPCI_MOD_DIR}/${SWTYPE}/$HPCI_SW_NAME
