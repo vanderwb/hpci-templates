@@ -11,7 +11,7 @@
 #HPCI -x export MAKEJOBS=1
 
 #	Maintainer: Brian Vanderwende
-#	Revised:   08:25, 27 Nov 2019
+#	Revised:   09:00, 17 Dec 2019
 
 # ===== BUILD CONFIGURATION
 
@@ -32,21 +32,17 @@ SWPKGS[0]=${SWNAME}-$HPCI_SW_VERSION
 echo -e "\n>>> BEGINNING BUILD [${SWNAME}-${HPCI_SW_VERSION}]\n"
 echo "Building with ${LMOD_FAMILY_COMPILER} compilers ..."
 
-# ===== UNPACK SOURCE FILES AND PREPARE GLOBAL ENVIRONMENT
-
-# Set position indepedence and configure make for MPI
-export {CPPFLAGS,CFLAGS,CXXFLAGS,FFLAGS,FCFLAGS,F77FLAGS,F90FLAGS}=-fPIC
-PYMAJOR=$(module list |& grep -oP ' python/.{0,3}' | cut -d/ -f2)
-
 if [[ $SWTYPE == dmpi ]]; then
 	echo "Using ${LMOD_FAMILY_MPI} MPI library ..."
 	export CC=mpicc CXX=mpicxx FC=mpif90
 fi
 
+# ===== UNPACK SOURCE FILES AND PREPARE BUILD DIRECTORY
+
+
 # Make directory for build using PID to avoid clobbers from multiple builds
 echo "Preparing source files ..."
-BPID=$$
-mkdir -p $BPID; cd $BPID
+BDIR=$PWD/$$; mkdir $BDIR; cd $BDIR
 
 for P in ${!SWPKGS[@]}; do
 	PKG=${SWPKGS[$P]}
@@ -75,8 +71,11 @@ function run_cmd {
 	fi
 }
 
+# Global configure settings
+export {CPPFLAGS,CFLAGS,CXXFLAGS,FFLAGS,FCFLAGS,F77FLAGS,F90FLAGS}=-fPIC
+
 echo -e "\n$((++NB))) BUILDING PACKAGE [${SWPKGS[$((NB-1))]}] ...\n"
-cd ${SWPKGS[$((NB-1))]}
+cd $BDIR/${SWPKGS[$((NB-1))]}
 
 %METHOD%
 
@@ -84,7 +83,7 @@ cd ${SWPKGS[$((NB-1))]}
 
 echo -e "\n<<< BUILD COMPLETE!\n"
 echo "Cleaning source files ..."
-rm -rf $BPID
+cd $BDIR/..; rm -rf $BDIR
 
 # ===== INSTALL THE MODULE
 
@@ -136,13 +135,11 @@ local incpath  = pathJoin(basepath, "/include")         -- include files
 local pkgpath  = pathJoin(libpath,  "/pkgconfig")       -- pc files
 local manpath  = pathJoin(basepath, "/share/man")       -- man pages
 local infopath = pathJoin(basepath, "/share/info")      -- info pages
-local pypath   = pathJoin(basepath, "/lib/python${PYMAJOR}/site-packages")
 local libs     = "${MODLIBS}"
 
 -- Update path variables in user environment
 prepend_path("PATH", binpath)
 prepend_path("PKG_CONFIG_PATH", pkgpath)
-prepend_path("PYTHONPATH", pypath)
 prepend_path("MANPATH", manpath)
 prepend_path("INFOPATH", infopath)
 
