@@ -4,5 +4,3 @@ mkdir build; cd build
 run_cmd "cmake -DCMAKE_INSTALL_PREFIX=$HPCI_SW_DIR .."
 run_cmd "make VERBOSE=1"
 run_cmd "make install"
-
-cd ../../../

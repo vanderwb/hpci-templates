@@ -7,5 +7,3 @@ fi
 run_cmd "./configure --prefix=$HPCI_SW_DIR"
 run_cmd "make -j $MAKEJOBS V=1"
 run_cmd "make install"
-
-cd ../../

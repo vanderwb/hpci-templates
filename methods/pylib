@@ -8,7 +8,7 @@ fi
 
 run_cmd "pip -v install --no-build-isolation $PWD"
 
-cd ../../
+cd ../
 
 # Test loading the package
 run_cmd "python -c \"import ${SWNAME}\""

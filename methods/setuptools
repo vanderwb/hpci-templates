@@ -5,7 +5,7 @@ export PYTHONPATH=${HPCI_SW_DIR}/lib/python${PYMAJOR}/site-packages:$PYTHONPATH
 run_cmd "python setup.py build"
 run_cmd "python setup.py install --prefix=$HPCI_SW_DIR"
 
-cd ../../
+cd ../
 
 # Set importing the package
 run_cmd "python -c \"import ${SWNAME}\""
