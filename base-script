@@ -11,7 +11,7 @@
 #HPCI -x export MAKEJOBS=1
 
 #	Maintainer: Brian Vanderwende
-#	Revised:   09:20, 17 Dec 2019
+#	Revised:   11:21, 19 Dec 2019
 
 # ===== BUILD CONFIGURATION
 
@@ -36,6 +36,9 @@ if [[ ${LMOD_FAMILY_MPI}z != z ]]; then
 	echo "Using ${LMOD_FAMILY_MPI} MPI library ..."
 	export CC=mpicc CXX=mpicxx FC=mpif90
 fi
+
+# Need to ensure group write access so git repository is consistent
+umask 0002
 
 # ===== UNPACK SOURCE FILES AND PREPARE BUILD DIRECTORY
 
@@ -97,9 +100,6 @@ DEPLIST=$(module list 2>&1 | awk -F '[0-9, ][0-9])' '{for(i=2;i<=NF;i++) {print 
 
 echo "Configuring and installing modulefile ..."
 echo "Path: ${MODFILE}"
-
-# Need to ensure group write access so git repository is consistent
-umask 0002
 mkdir -p $MODPATH
 
 # Write the module file template for this software
