@@ -11,7 +11,7 @@
 #HPCI -x export MAKEJOBS=1
 
 #	Maintainer: Brian Vanderwende
-#	Revised:   11:21, 19 Dec 2019
+#	Revised:   20:35, 23 Nov 2020
 
 # ===== BUILD CONFIGURATION
 
@@ -44,14 +44,13 @@ umask 0002
 
 # Make directory for build using PID to avoid clobbers from multiple builds
 echo "Preparing source files ..."
-BDIR=$PWD/$$; mkdir $BDIR; cd $BDIR
+BDIR=$PWD/$$; mkdir -p $BDIR/srctmp; cd $BDIR/srctmp
 
 # Unpackage source files
 for PKG in ${SWPKGS[@]}; do
-	if [[ -e ../${PKG}.tar.gz ]]; then
-        tar -xf ../${PKG}.tar.gz
-		SRCDIR=$(ls -1c --color=never | head -1)
-        [[ $SRCDIR != $PKG ]] && mv $SRCDIR $PKG
+	if [[ -e ../../${PKG}.tar.gz ]]; then
+        tar -xf ../../${PKG}.tar.gz
+        mv * ../$PKG
 	else
 		echo -e "\n*** ERROR: source for $PKG does not exist! Exiting ..."
 		exit 2

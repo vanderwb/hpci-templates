@@ -2,7 +2,7 @@
 if [[ $USER == csgteam ]]; then
     source ${NPLROOT}/pkg-library/${PYLIBVER}/bin/activate
 else
-    ncar_pylib -c latest /glade/scratch/$USER/npl-$HPCI_SW_DIR
+    ncar_pylib -c default /glade/scratch/$USER/npl-$HPCI_SW_DIR
     source /glade/scratch/$USER/npl-${HPCI_SW_DIR}/bin/activate
 fi
 
